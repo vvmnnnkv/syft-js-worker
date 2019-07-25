@@ -1,0 +1,25 @@
+<html>
+  <head>
+    <title>Simple Example</title>
+  </head>
+  <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/0.12.4/tf.min.js"></script>
+<script src="https://unpkg.com/syft.js@latest/lib/index.js"></script>
+
+<!--    <script src="../../lib/index.js"></script> -->
+<!--    <script src="script.js"></script> -->
+
+  <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.dev.js"></script>
+<script crossorigin src="https://unpkg.com/@msgpack/msgpack"></script>
+   <script src="numpy.js"></script> 
+   <script src="mapper.js"></script> 
+
+   <script src="main.js"></script> 
+
+   <input id="event" value="client_ack">
+   <input id="value" value="abc">
+ <button onclick="socket.emit(getElementById('event').value, getElementById('value').value)">SEND</button>
+
+  </body>
+</html>
