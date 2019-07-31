@@ -1,3 +1,0 @@
-https://gist.github.com/nvictus/88b3b5bfe587d32ac1ab519fd0009607
-https://github.com/propelml/tfjs-npy/blob/master/npy.ts
-https://github.com/msgpack/msgpack-javascript#decodeoptions

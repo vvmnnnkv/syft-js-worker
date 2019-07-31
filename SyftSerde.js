@@ -2,12 +2,6 @@ const COMPRESSION_LZ4 = 41
 const COMPRESSION_ZSTD = 42
 const COMPRESSION_NONE = 40
 
-const OP_COMMAND = 1
-const OP_OBJECT = 2
-const OP_OBJECT_REQUEST = 3
-const OP_OBJECT_DEL = 4
-const OP_OBJECT_FORCE_DEL = 9
-
 class PyDict extends Object {
 
     static detail(worker, obj) {
@@ -18,7 +12,6 @@ class PyDict extends Object {
             value = detail(worker, value)
             dict[key] = value
         }
-        console.log('dict', dict)
         return dict
     }
 
@@ -46,8 +39,8 @@ class PyTuple extends Array {
         super(items)
     }
 
-    static simplify() {
-
+    static simplify(obj) {
+        return obj.map(simplify)
     }
 
     static detail(worker, obj) {
@@ -71,10 +64,15 @@ class SyftTorchTensor {
     }
 
     static detail(worker, obj) {
-        console.log('tens det', obj)
         let tensorBuff = Uint8Array.from(obj[1])
         let tensor = fromArrayBuffer(tensorBuff.buffer, tensorBuff.byteOffset)
         return new SyftTorchTensor(obj[0], tensor.data, tensor.shape)
+    }
+
+    static simplify(obj) {
+        let buffer = new Uint8Array(toNumpyBuffer(obj.data, obj.shape))
+        // tensor.id, tensor_bin, chain, grad_chain, tags, tensor.description
+        return PyTuple.from([obj.id, buffer, null, null, null, null])
     }
 }
 
@@ -111,12 +109,15 @@ class SyftPointerTensor {
 class SyftMessageParseError extends Error {}
 
 const simplifiers = {
-    6: PyTuple.simplify
+    "PyTuple": [6, PyTuple.simplify],
+    "SyftTorchTensor": [12, SyftTorchTensor.simplify],
 }
 
 const detailers = {
     0: PyDict.detail,
+    // list
     1: (worker, obj) => Array.from(obj),
+    // string
     5: (worker, obj) => String(obj),
     6: PyTuple.detail,
     12: SyftTorchTensor.detail,
@@ -124,11 +125,18 @@ const detailers = {
 }
 
 function simplify(obj) {
-
+    if (typeof obj !== "object" && obj !== null) {
+        return obj
+    }
+    const type = obj.constructor.name
+    const simplifier = simplifiers[type]
+    if (!simplifier) {
+        throw Error(`no simplifier for ${type}`)
+    }
+    return PyTuple.from([simplifier[0], simplifier[1](obj)])
 }
 
 function detail(worker, obj) {
-    console.log('detail: ', obj)
     if (Array.isArray(obj)) {
         if (typeof detailers[obj[0]] === "undefined") {
             throw Error(`no detailer for ${obj[0]}`)
