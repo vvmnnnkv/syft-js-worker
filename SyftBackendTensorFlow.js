@@ -32,7 +32,6 @@ class SyftBackendTensorFlow extends SyftBackend {
 
     executeOp(command, tensor, operand) {
         const tfOp = TF_COMMAND_MAP.get(command)
-        console.log(command, tfOp)
         return tensor[tfOp](operand)
     }
 

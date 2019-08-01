@@ -24,8 +24,10 @@
         document.getElementById("log").appendChild(entry)
     }
 
+    const workerServerUrl = 'https://syft-socketio-server.herokuapp.com/'
     const backend = new SyftBackendTensorFlow()
-    const connector = new SyftConnectorSocketIO("http://localhost:5000/")
+    const connector = new SyftConnectorSocketIO(workerServerUrl)
+
     const worker = new SyftWorker(connector, backend, {debug: log})
 
     backend.addEventListener('tensor-added', (e) => log('Backend: Tensor added', e.detail))
