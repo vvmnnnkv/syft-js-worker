@@ -8,8 +8,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.dev.js"></script>
 <script crossorigin src="https://unpkg.com/@msgpack/msgpack"></script>
 <script src="numpy.js"></script>
-<script src="SyftSerde.js"></script>
 <script src="SyftMessage.js"></script>
+<script src="SyftSerde.js"></script>
 <script src="SyftBackend.js"></script>
 <script src="SyftBackendTensorFlow.js"></script>
 <script src="SyftConnector.js"></script>
@@ -35,8 +35,18 @@
     backend.addEventListener('tensor-op', (e) => log('Backend: Tensor operation', e.detail))
 </script>
 
-<button onclick="connector.ack()">SEND ACK</button>
+<h1>PySyft Web Worker</h1>
 
+This page will connect to syft-socketio-server.herokuapp.com proxy and execute commands sent 
+to corresponding worker in the <a href="https://colab.research.google.com/github/vvmnnnkv/syft-js-worker/blob/master/Syft%20Web%20Client%20Demo.ipynb">example notebook</a>. 
+Wait for "Connected" message to appear in the log below (proxy is running on heroku and may need some time to wake up) and then 
+you can execute code on the python side.
+<br><br>
+Note 1: It was tested in Chrome browser only.
+<br><br>
+Note 2: If something goes wrong and python code waits for the response, click this button: <button onclick="connector.ack()">SEND ACK</button>
+
+<h2>Logs:</h2>
 <div id="log"></div>
 
 </body>

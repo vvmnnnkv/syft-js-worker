@@ -5,17 +5,18 @@ It explores possibility to have PySyft worker running in the web browser,
 which potentially expands PySyft functionality to a very large user-base. 
 The back-end for tensor operations in browser is tf.js.
 
-The current project's state is 'proof of concept' where tensors can be moved to/from browser and a limited set of tensor operations is possible. Further direction is to try to use web client for federated learning.
+The current project's state is 'proof of concept' where tensors can be moved to/from browser and a limited set of tensor operations is possible. 
+Further direction is to try to use web client for federated learning.
 
 ## Demo
-Follow this [jupyter notebook](https://github.com/vvmnnnkv/syft-js-worker/blob/master/Syft%20Web%20Client%20Demo.ipynb), it works in Colab!
+Follow this [Colab jupyter notebook](https://colab.research.google.com/github/vvmnnnkv/syft-js-worker/blob/master/Syft%20Web%20Client%20Demo.ipynb).
 
 For local installation:
 ```
 pip install -Ur requirements.txt
 python run_socketio_server.py
 ```
-Update `index.html` with server's URL (e.g. `http://localhost:5000`).
+Update `index.html` and notebook code with server's URL (e.g. `http://localhost:5000`).
 
 ## Work in progress
 There's zero infrastructure work done (e.g. dependency management, building, etc.), and javascript is tested in Chrome only.

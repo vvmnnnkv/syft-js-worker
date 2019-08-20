@@ -106,6 +106,27 @@ class SyftPointerTensor {
     }
 }
 
+class SyftTorchParameter {
+
+    constructor(id, tensor, requires_grad, grad) {
+        this.id = id
+        this.tensor = tensor
+        this.requires_grad = requires_grad
+        this.grad = grad
+    }
+
+    static detail(worker, obj) {
+        console.log(obj)
+        const [param_id, tensor_ser, requires_grad, grad_ser] = obj
+        const tensor = SyftTorchTensor.detail(worker, tensor_ser)
+        let grad = null;
+        if (grad_ser) {
+            grad = SyftTorchTensor.detail(worker, grad_ser)
+        }
+        return new SyftTorchParameter(param_id, tensor, requires_grad, grad)
+    }
+}
+
 class SyftMessageParseError extends Error {}
 
 const simplifiers = {
@@ -120,8 +141,10 @@ const detailers = {
     // string
     5: (worker, obj) => String(obj),
     6: PyTuple.detail,
+    11: SyftTorchParameter.detail,
     12: SyftTorchTensor.detail,
-    18: SyftPointerTensor.detail
+    20: SyftPointerTensor.detail,
+    25: SyftMessage.detail
 }
 
 function simplify(obj) {

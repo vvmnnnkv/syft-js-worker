@@ -33,35 +33,51 @@ class SyftWorker extends EventTarget {
     handleMessage(message) {
         const syMessage = SyftMessage.fromBinary(message)
         this.logger.debug("Message parsed:", syMessage)
-        switch (syMessage.op) {
+        switch (syMessage.msg_type) {
             case MSGTYPE_OBJ:
-                const tensor = syMessage.args
-                this.addTensor(tensor.id, tensor)
+                this.addObject(syMessage.contents)
                 this.connector.ack()
                 break
 
             case MSGTYPE_OBJ_DEL:
             case MSGTYPE_FORCE_OBJ_DEL:
-                const delTensorId = syMessage.args
+                const delTensorId = syMessage.contents
                 this.deleteTensor(delTensorId)
                 this.connector.ack()
                 break
 
             case MSGTYPE_CMD:
-                const command = syMessage.args
+                const command = syMessage.contents
                 this.executeCommand(command)
                 this.connector.ack()
                 break
 
             case MSGTYPE_OBJ_REQ:
-                const getTensorId = syMessage.args
+                const getTensorId = syMessage.contents
                 const tensorOut = this.getTensor(getTensorId)
                 const response = new SyftMessage(null, tensorOut)
                 this.connector.send(response.toBinary())
                 break
 
+            case MSGTYPE_IS_NONE:
+                this.connector.send(
+                    new SyftMessage(
+                        null, 
+                        !this.backend.tensorExist(syMessage.contents.id)
+                    ).toBinary()
+                )
+                break
+
             default:
-                throw new Error(`Unsupported operation: ${syMessage.op}`)
+                throw new Error(`Unsupported message type: ${syMessage.msg_type}`)
+        }
+    }
+
+    addObject(obj) {
+        if (obj instanceof SyftTorchTensor) {
+            this.addTensor(obj.id, obj)
+        } else {
+            throw new Error(`Unsupported object type: ${typeof obj}`)
         }
     }
 

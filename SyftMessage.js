@@ -10,9 +10,9 @@ const MSGTYPE_FORCE_OBJ_DEL = 9
 
 class SyftMessage {
 
-    constructor(op, args) {
-        this.op = op
-        this.args = args
+    constructor(msg_type, contents) {
+        this.msg_type = msg_type
+        this.contents = contents
     }
 
     static fromBinary(blob) {
@@ -27,16 +27,15 @@ class SyftMessage {
         }
 
         let rawData = MessagePack.decode(data)
-        let unpacked = detail(null, rawData)
-        return new SyftMessage(unpacked[0], unpacked[1])
+        return detail(null, rawData)
     }
 
     toBinary() {
         let payload
-        if (this.op) {
-            payload = simplify(PyTuple.from([this.op, this.args]))
+        if (this.msg_type) {
+            payload = simplify(PyTuple.from([this.msg_type, this.contents]))
         } else {
-            payload = simplify(this.args)
+            payload = simplify(this.contents)
         }
 
         let encoded = MessagePack.encode(payload)
@@ -48,5 +47,27 @@ class SyftMessage {
         return result.buffer
     }
 
+    static detail(worker, obj) {
+        const [msg_type, contents_ser] = obj
+        const contents = detail(worker, contents_ser)
+        switch (msg_type) {
+//            case MSGTYPE_CMD:
+//                return new SyftOperation(contents[0], contents[1])
+//                break
+            default:
+                return new SyftMessage(msg_type, contents)
+                break
+        }
+    }
+
 }
 
+class SyftOperation extends SyftMessage {
+
+    constructor(message, return_ids) {
+        this.msg_type = MSGTYPE_CMD
+        this.message = message
+        this.return_ids = return_ids
+    }
+
+}
